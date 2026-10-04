@@ -175,14 +175,7 @@ final class Migrations {
 		if ( false === get_option( 'dinv_flush_rewrite' ) ) {
 			add_option( 'dinv_flush_rewrite', '0', '', true );
 		}
-		// Re-add instead of wp_set_options_autoload(): it is unreliable in WP 6.5.
-		foreach ( array( 'dinv_flush_rewrite', 'dinv_seller_profile' ) as $name ) {
-			$value = get_option( $name );
-			if ( false !== $value ) {
-				delete_option( $name );
-				add_option( $name, $value, '', true );
-			}
-		}
+		wp_set_options_autoload( array( 'dinv_flush_rewrite', 'dinv_seller_profile' ), true );
 
 		Repository::invalidate_public_cache();
 	}

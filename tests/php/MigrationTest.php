@@ -16,6 +16,15 @@ use DealerInventory\Settings;
  */
 class MigrationTest extends Test_Case {
 
+	/**
+	 * CREATE TABLE commits the test transaction on MySQL, so the migration lock
+	 * of an earlier test can survive. Start every test without it.
+	 */
+	public function set_up(): void {
+		parent::set_up();
+		delete_transient( 'dinv_migrating' );
+	}
+
 	public function test_version_one_settings_are_mapped(): void {
 		update_option(
 			Settings::OPTION,
