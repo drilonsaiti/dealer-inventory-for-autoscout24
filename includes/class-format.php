@@ -186,4 +186,15 @@ final class Format {
 
 		return $formatters[ $key ];
 	}
+
+	/**
+	 * Vehicle description HTML: text formatting only. Links, images, forms
+	 * and styles from the marketplace are removed.
+	 *
+	 * @param string $html Description.
+	 */
+	public static function description_html( string $html ): string {
+		$allowed = array_fill_keys( array( 'p', 'br', 'ul', 'ol', 'li', 'strong', 'em', 'b', 'i', 'u', 'h3', 'h4' ), array() );
+		return trim( wp_kses( $html, $allowed ) );
+	}
 }

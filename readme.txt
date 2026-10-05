@@ -155,6 +155,9 @@ By default the settings, stored vehicles and logs are kept, so a reinstall works
 * New: Gutenberg block and Elementor widget.
 * New: choose whether data is kept or removed when the plugin is deleted (kept by default).
 * Accessibility: the mobile filter panel is a labelled modal dialog; keyboard support for the make / model search.
+* Security: vehicle descriptions keep only text formatting. The token request does not follow redirects. Photos are loaded only from AutoScout24 hosts. The Elementor HTML widget runs only the inventory shortcode.
+* Fixed: a long sync could overlap with the next one and briefly hide vehicles.
+* Fixed: the currency and date format options CHF, EUR, m/Y, m.Y and Y could not be saved.
 * Fixed: a filter without choices could leave an output buffer open.
 * Developer: PHPUnit and JavaScript tests, GitHub Actions for coding standards, PHP 8.1–8.4 and Plugin Check.
 

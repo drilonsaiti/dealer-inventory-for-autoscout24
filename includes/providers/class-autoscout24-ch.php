@@ -9,6 +9,7 @@ namespace DealerInventory\Providers;
 
 use DealerInventory\Connection;
 use DealerInventory\Crypto;
+use DealerInventory\Format;
 use DealerInventory\Logger;
 use WP_Error;
 
@@ -159,6 +160,11 @@ final class AutoScout24_CH implements Provider {
 			++$page;
 		} while ( ! $last && $page < $total_pages && $page < self::MAX_PAGES );
 
+		// Stopped at the page cap: the list is incomplete, so nothing may be hidden as "missing".
+		if ( ! $last && $page < $total_pages ) {
+			return new WP_Error( 'dinv_too_many_pages', __( 'The stock is too large to download in one sync. No vehicles were hidden.', 'dealer-inventory-for-autoscout24' ) );
+		}
+
 		return $received;
 	}
 
@@ -264,7 +270,7 @@ final class AutoScout24_CH implements Provider {
 		}
 
 		return array(
-			'description' => wp_kses_post( (string) ( $detail['description'] ?? '' ) ),
+			'description' => Format::description_html( (string) ( $detail['description'] ?? '' ) ),
 			'specs'       => array_filter( $specs, static fn( $value ) => null !== $value && '' !== $value ),
 			'equipment'   => array_values( array_unique( array_filter( $equipment ) ) ),
 			'images'      => array_slice( $images, 0, 40 ),
@@ -340,8 +346,10 @@ final class AutoScout24_CH implements Provider {
 		if ( '' === $url ) {
 			return '';
 		}
-		if ( self::IMAGE_HOST !== wp_parse_url( $url, PHP_URL_HOST ) ) {
-			return esc_url_raw( $url );
+		$host = strtolower( (string) wp_parse_url( $url, PHP_URL_HOST ) );
+		if ( self::IMAGE_HOST !== $host ) {
+			// Only AutoScout24 hosts are loaded by visitors' browsers (see the privacy policy text).
+			return ( 'https' === wp_parse_url( $url, PHP_URL_SCHEME ) && str_ends_with( $host, '.autoscout24.ch' ) ) ? esc_url_raw( $url ) : '';
 		}
 		$allowed = array( 256, 320, 360, 384, 768, 1024, 1280, 1920 );
 		$width   = in_array( $width, $allowed, true ) ? $width : 768;
@@ -497,12 +505,13 @@ final class AutoScout24_CH implements Provider {
 		$response = wp_safe_remote_post(
 			self::base_url() . '/public/v1/clients/oauth/token',
 			array(
-				'timeout' => 12,
-				'headers' => array(
+				'timeout'     => 12,
+				'redirection' => 0,
+				'headers'     => array(
 					'Accept'       => 'application/json',
 					'Content-Type' => 'application/x-www-form-urlencoded',
 				),
-				'body'    => array(
+				'body'        => array(
 					'client_id'     => $connection->client_id,
 					'client_secret' => $connection->client_secret,
 					'grant_type'    => 'client_credentials',

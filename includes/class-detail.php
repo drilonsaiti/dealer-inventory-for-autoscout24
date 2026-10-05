@@ -153,6 +153,17 @@ final class Detail {
 			return;
 		}
 
+		// With a detail page configured, the endpoint on any other post or page
+		// is duplicate content: send it to the detail page.
+		$detail_page = (int) Settings::get( 'detail_page', 0 );
+		if ( $detail_page > 0 && 'publish' === get_post_status( $detail_page ) && get_queried_object_id() !== $detail_page ) {
+			$target = self::url( $vehicle );
+			if ( '' !== $target ) {
+				wp_safe_redirect( $target, 301 );
+				exit;
+			}
+		}
+
 		// Canonical slug (the title may have changed since the link was shared).
 		if ( get_option( 'permalink_structure' ) && self::slug( $vehicle ) !== self::requested() ) {
 			$canonical = self::url( $vehicle, (string) get_permalink( get_queried_object_id() ) );

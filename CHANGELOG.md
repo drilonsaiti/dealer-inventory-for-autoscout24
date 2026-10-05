@@ -23,7 +23,17 @@ All notable changes to this project are documented here. The format follows [Kee
 - The mobile filter panel is now a labelled modal dialog that traps focus and closes with Escape.
 - Deleting the plugin keeps its data unless "Remove everything" is selected.
 
+### Security
+- Vehicle descriptions now keep only text formatting (paragraphs, lists, bold, italic). Links, images, forms and inline styles from the marketplace are removed.
+- The access-token request no longer follows redirects, so the Client Secret can only be sent to the API host.
+- Photos are loaded only from AutoScout24 hosts.
+- The Elementor HTML widget now runs only the inventory shortcode, not every shortcode in the widget.
+- A sync that is still running keeps its lock. A run whose lock was taken over stops without hiding vehicles.
+- A sync that stops at the page limit reports an error instead of hiding the vehicles it did not reach.
+- Vehicle detail URLs on other pages redirect to the configured detail page.
+
 ### Fixed
+- The currency and date format options CHF, EUR, m/Y, m.Y and Y could not be saved.
 - A filter with fewer than two choices could leave an output buffer open.
 - Template rendering now closes its output buffer when a template throws an error.
 - The plugin header now links to the current repository.

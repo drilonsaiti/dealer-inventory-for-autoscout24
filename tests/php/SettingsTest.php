@@ -127,4 +127,20 @@ class SettingsTest extends Test_Case {
 
 		$this->assertSame( 7, Schema::resolve( array() )['per_page'] );
 	}
+
+	public function test_case_sensitive_enum_options_can_be_saved(): void {
+		$this->assertSame( 'CHF', Schema::sanitize( 'currency', 'CHF' ) );
+		$this->assertSame( 'm/Y', Schema::sanitize( 'date_format', 'm/Y' ) );
+		$this->assertSame( Schema::field( 'currency' )['default'], Schema::sanitize( 'currency', 'XYZ' ) );
+	}
+
+	public function test_custom_font_needs_balanced_quotes(): void {
+		$this->assertSame( '"Open Sans", Arial, sans-serif', Schema::sanitize( 'design_font_custom', '"Open Sans", Arial, sans-serif' ) );
+		$this->assertSame( '', Schema::sanitize( 'design_font_custom', '"Inter, sans-serif' ) );
+	}
+
+	public function test_description_keeps_only_text_formatting(): void {
+		$html = '<p style="x">Top <strong>car</strong> <a href="https://evil.example">link</a><img src="https://t.example/p.gif"><form action="x"><button>Go</button></form></p>';
+		$this->assertSame( '<p>Top <strong>car</strong> linkGo</p>', \DealerInventory\Format::description_html( $html ) );
+	}
 }

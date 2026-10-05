@@ -91,7 +91,9 @@ final class Plugin {
 			'html' === $widget->get_name() &&
 			false !== strpos( $content, '[' . Shortcode::TAG )
 		) {
-			return do_shortcode( $content );
+			// Run only this plugin's shortcode, not every shortcode in the widget.
+			$pattern = get_shortcode_regex( array( Shortcode::TAG ) );
+			return (string) preg_replace_callback( "/$pattern/", 'do_shortcode_tag', $content );
 		}
 		return $content;
 	}

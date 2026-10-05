@@ -59,12 +59,13 @@ final class Sync {
 			$received = $provider->fetch_listings(
 				$connection,
 				$language,
-				static function ( array $row, int $position ) use ( &$buffer, $batch ): void {
+				static function ( array $row, int $position ) use ( &$buffer, $batch, $lock_token ): void {
 					$row['source_order'] = max( 0, $position );
 					$buffer[]            = $row;
 					if ( count( $buffer ) >= self::WRITE_BUFFER ) {
 						Repository::upsert_rows( $buffer, $batch );
 						$buffer = array();
+						self::refresh_lock( $lock_token );
 					}
 				}
 			);
@@ -73,6 +74,13 @@ final class Sync {
 			if ( is_wp_error( $received ) ) {
 				self::store_failure( $received->get_error_message(), $started );
 				return $received;
+			}
+
+			// A slow run whose lock was taken over must not hide the other run's vehicles.
+			if ( ! self::refresh_lock( $lock_token ) ) {
+				$error = new WP_Error( 'dinv_sync_lock_lost', __( 'Another synchronization took over. This run stopped without hiding vehicles.', 'dealer-inventory-for-autoscout24' ) );
+				self::store_failure( $error->get_error_message(), $started );
+				return $error;
 			}
 
 			// Only a complete download may deactivate vehicles.
@@ -244,6 +252,23 @@ final class Sync {
 		}
 
 		return new WP_Error( 'dinv_sync_locked', __( 'A synchronization is already running.', 'dealer-inventory-for-autoscout24' ) );
+	}
+
+	/**
+	 * Extend the lock while this process still owns it.
+	 *
+	 * @param string $token Lock token.
+	 * @return bool False when another run took the lock.
+	 */
+	private static function refresh_lock( string $token ): bool {
+		wp_cache_delete( self::LOCK_OPTION, 'options' );
+		$existing = get_option( self::LOCK_OPTION, null );
+		if ( ! is_array( $existing ) || ! is_string( $existing['token'] ?? null ) || ! hash_equals( $existing['token'], $token ) ) {
+			return false;
+		}
+		$existing['expires_at'] = time() + self::LOCK_TTL;
+		update_option( self::LOCK_OPTION, $existing, false );
+		return true;
 	}
 
 	/**

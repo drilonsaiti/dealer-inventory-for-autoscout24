@@ -168,7 +168,16 @@ final class Schema {
 				return is_numeric( $value ) && (float) $value >= 0 ? (float) $value : '';
 
 			case 'enum':
-				$value = is_int( $value ) ? $value : sanitize_key( (string) $value );
+				// Exact match first: some options are case-sensitive or contain "/" or "." (currencies, date formats).
+				if ( is_scalar( $value ) ) {
+					$raw = trim( (string) $value );
+					foreach ( array_keys( $field['options'] ) as $option ) {
+						if ( (string) $option === $raw ) {
+							return $option;
+						}
+					}
+				}
+				$value = is_int( $value ) ? $value : sanitize_key( is_scalar( $value ) ? (string) $value : '' );
 				foreach ( array_keys( $field['options'] ) as $option ) {
 					if ( (string) $option === (string) $value ) {
 						return $option;
@@ -1174,7 +1183,8 @@ final class Schema {
 				'type'       => 'text',
 				'default'    => '',
 				'max_length' => 120,
-				'pattern'    => '/^[A-Za-z0-9 ,\'"\-]+$/',
+				// Comma-separated names, each bare or in balanced quotes.
+				'pattern'    => '/^\s*(?:[A-Za-z0-9 \-]+|"[A-Za-z0-9 \-]+"|\'[A-Za-z0-9 \-]+\')(?:\s*,\s*(?:[A-Za-z0-9 \-]+|"[A-Za-z0-9 \-]+"|\'[A-Za-z0-9 \-]+\'))*\s*$/',
 				'label'      => __( 'Custom font family', 'dealer-inventory-for-autoscout24' ),
 				'help'       => __( 'A font your theme already loads, for example "Inter", sans-serif.', 'dealer-inventory-for-autoscout24' ),
 			),

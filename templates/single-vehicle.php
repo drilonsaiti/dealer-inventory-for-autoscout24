@@ -161,7 +161,7 @@ if ( '' !== $dinv_desc && ! preg_match( '/<(p|br|ul|ol|div)\b/i', $dinv_desc ) )
 		<?php if ( '' !== $dinv_desc ) : ?>
 			<section class="dinv-detail__section dinv-detail__description" aria-labelledby="<?php echo esc_attr( $dinv_uid ); ?>-desc">
 				<h2 id="<?php echo esc_attr( $dinv_uid ); ?>-desc"><?php echo esc_html( $labels['description'] ); ?></h2>
-				<div class="dinv-detail__text"><?php echo wp_kses_post( $dinv_desc ); ?></div>
+				<div class="dinv-detail__text"><?php echo \DealerInventory\Format::description_html( $dinv_desc ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Filtered with wp_kses(). ?></div>
 			</section>
 		<?php endif; ?>
 
