@@ -129,6 +129,16 @@ final class Sync {
 	}
 
 	/**
+	 * Version for browser and CDN caches of list requests. Changes after every
+	 * sync and whenever the settings or the plugin version change, so a cached
+	 * response never shows results rendered with old settings.
+	 */
+	public static function cache_version(): string {
+		$hash = substr( md5( (string) wp_json_encode( Settings::all() ) . DINV_VERSION ), 0, 8 );
+		return self::version() . '-' . $hash;
+	}
+
+	/**
 	 * Seller profile and warranty flags.
 	 *
 	 * @param Connection $connection Connection.

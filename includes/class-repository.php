@@ -581,6 +581,58 @@ final class Repository {
 	}
 
 	/**
+	 * Choice filter columns, keyed by filter name.
+	 */
+	public const CHOICE_COLUMNS = array(
+		'vehicle_category' => array( 'vehicle_category', 'categories' ),
+		'fuel'             => array( 'fuel_type', 'fuels' ),
+		'transmission'     => array( 'transmission_type', 'transmissions' ),
+		'body_type'        => array( 'body_type', 'body_types' ),
+		'drive_type'       => array( 'drive_type', 'drive_types' ),
+		'condition'        => array( 'condition_type', 'conditions' ),
+	);
+
+	/**
+	 * Vehicle counts per value of each choice filter (fuel, body type, …).
+	 *
+	 * Each filter is counted with all other active filters applied, but not
+	 * its own, so the visitor sees how many vehicles every choice would give.
+	 *
+	 * @param array    $filters Normalized filters.
+	 * @param string[] $targets Filter names to count (keys of CHOICE_COLUMNS).
+	 * @return array<string, array<string, int>>
+	 */
+	public static function choice_counts( array $filters, array $targets ): array {
+		global $wpdb;
+		$counts = array();
+
+		foreach ( $targets as $target ) {
+			if ( ! isset( self::CHOICE_COLUMNS[ $target ] ) ) {
+				continue;
+			}
+			list( $column, $group ) = self::CHOICE_COLUMNS[ $target ];
+			$others                 = $filters;
+			unset( $others[ $target ] );
+
+			if ( ! self::has_filters( $others ) ) {
+				$rows = (array) ( self::filter_options()[ $group ] ?? array() );
+			} else {
+				list( $where_sql, $params ) = self::where_sql( $others );
+				$sql                        = 'SELECT ' . $column . ' AS value, COUNT(*) AS count FROM ' . self::vehicles_table() . ' WHERE ' . $where_sql . ' AND ' . $column . "<>'' GROUP BY " . $column;
+				$rows                       = $wpdb->get_results( $wpdb->prepare( $sql, ...$params ), ARRAY_A ); // phpcs:ignore PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.PreparedSQL.NotPrepared -- Column from a constant whitelist, WHERE built from whitelisted columns and placeholders.
+				$rows                       = is_array( $rows ) ? $rows : array();
+			}
+
+			$counts[ $target ] = array();
+			foreach ( $rows as $row ) {
+				$counts[ $target ][ (string) $row['value'] ] = (int) $row['count'];
+			}
+		}
+
+		return $counts;
+	}
+
+	/**
 	 * Makes with their models, labels and total counts (cached tree).
 	 *
 	 * @return array<int, array{value: string, label: string, count: int, models: array}>

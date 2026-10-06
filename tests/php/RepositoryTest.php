@@ -105,6 +105,18 @@ class RepositoryTest extends Test_Case {
 		$this->assertSame( 2, $all['makes']['audi'] );
 	}
 
+	public function test_choice_counts_apply_the_other_filters_but_not_their_own(): void {
+		$this->fixture();
+
+		$counts = Repository::choice_counts( array( 'body_type' => 'suv', 'fuel' => 'diesel' ), array( 'fuel', 'body_type' ) );
+
+		$this->assertEqualsCanonicalizing( array( 'petrol' => 2, 'diesel' => 2, 'electric' => 1 ), $counts['fuel'], 'Fuel counts use body = SUV only.' );
+		$this->assertEqualsCanonicalizing( array( 'suv' => 2, 'estate' => 1 ), $counts['body_type'], 'Body counts use fuel = diesel only.' );
+
+		$all = Repository::choice_counts( array(), array( 'fuel' ) );
+		$this->assertEqualsCanonicalizing( array( 'diesel' => 3, 'petrol' => 2, 'electric' => 1 ), $all['fuel'] );
+	}
+
 	public function test_make_tree_is_sorted_with_counts(): void {
 		$this->fixture();
 		$tree = Repository::make_tree();

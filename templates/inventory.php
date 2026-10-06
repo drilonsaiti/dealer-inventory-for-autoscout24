@@ -16,6 +16,7 @@
  * @var array                      $options       Filter options.
  * @var array                      $tree          Makes with models.
  * @var array                      $facets        Counts per make / model for the active filters.
+ * @var array                      $choice_counts Counts per choice (fuel, body type, …) for the active filters.
  * @var array                      $labels        Interface labels.
  * @var \DealerInventory\Renderer  $renderer      Result renderer.
  * @var array                      $preset_params Preset filters as request parameters.
@@ -68,7 +69,7 @@ $dinv_style = sprintf(
 	data-view="<?php echo esc_attr( $view ); ?>"
 	data-config="<?php echo esc_attr( (string) wp_json_encode( (object) $client_config ) ); ?>"
 	data-locale="<?php echo esc_attr( determine_locale() ); ?>"
-	data-version="<?php echo esc_attr( (string) Sync::version() ); ?>"
+	data-version="<?php echo esc_attr( Sync::cache_version() ); ?>"
 	data-rendered="<?php echo esc_attr( (string) time() ); ?>"
 >
 	<?php if ( $config['show_header'] ) : ?>

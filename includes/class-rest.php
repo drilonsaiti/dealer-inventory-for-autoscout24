@@ -116,8 +116,11 @@ final class Rest {
 		if ( ! $items && $inventory->shows_make_control() ) {
 			$data['facets'] = $inventory->facets();
 		}
+		if ( ! $items && $config['show_filters'] ) {
+			$data['choices'] = (object) array_map( static fn( $counts ) => (object) $counts, $inventory->choice_counts() );
+		}
 
-		$response = self::response( $data, (string) ( $params['v'] ?? '' ) === (string) Sync::version() );
+		$response = self::response( $data, (string) ( $params['v'] ?? '' ) === Sync::cache_version() );
 
 		if ( $switched ) {
 			restore_previous_locale();
@@ -148,7 +151,7 @@ final class Rest {
 	 * Current inventory version (changes after every successful sync).
 	 */
 	public static function status(): WP_REST_Response {
-		return self::response( array( 'version' => Sync::version() ), false );
+		return self::response( array( 'version' => Sync::cache_version() ), false );
 	}
 
 	/**

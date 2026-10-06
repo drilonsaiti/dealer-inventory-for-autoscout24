@@ -87,10 +87,19 @@ class RestTest extends Test_Case {
 	}
 
 	public function test_cache_headers_depend_on_version(): void {
-		$current = $this->get( '/vehicles', array( 'v' => (string) Sync::version() ) );
+		$current = $this->get( '/vehicles', array( 'v' => Sync::cache_version() ) );
 		$stale   = $this->get( '/vehicles', array( 'v' => 'old' ) );
 
 		$this->assertStringContainsString( 'public', $current->get_headers()['Cache-Control'] );
 		$this->assertStringContainsString( 'no-cache', $stale->get_headers()['Cache-Control'] );
+	}
+
+	public function test_cache_version_changes_with_settings(): void {
+		$before = Sync::cache_version();
+		update_option( \DealerInventory\Settings::OPTION, array( 'card_fields' => array( 'image', 'title' ) ) );
+		\DealerInventory\Settings::reset_cache();
+
+		$this->assertNotSame( $before, Sync::cache_version(), 'Cached responses with old settings are not reused.' );
+		$this->assertStringContainsString( 'no-cache', $this->get( '/vehicles', array( 'v' => $before ) )->get_headers()['Cache-Control'] );
 	}
 }

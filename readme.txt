@@ -156,6 +156,8 @@ By default the settings, stored vehicles and logs are kept, so a reinstall works
 * New: choose whether data is kept or removed when the plugin is deleted (kept by default).
 * Accessibility: the mobile filter panel is a labelled modal dialog; keyboard support for the make / model search.
 * Security: vehicle descriptions keep only text formatting. The token request does not follow redirects. Photos are loaded only from AutoScout24 hosts. The Elementor HTML widget runs only the inventory shortcode.
+* New: fuel, body type, transmission and the other choice filters show counts for the other active filters. Empty choices are disabled or hidden.
+* Fixed: after a settings change, clearing a filter could show cached results with the old card layout.
 * Fixed: a long sync could overlap with the next one and briefly hide vehicles.
 * Fixed: the currency and date format options CHF, EUR, m/Y, m.Y and Y could not be saved.
 * Fixed: a filter without choices could leave an output buffer open.

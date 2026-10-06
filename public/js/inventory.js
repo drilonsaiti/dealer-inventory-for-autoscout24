@@ -772,6 +772,34 @@
 			} );
 	};
 
+	/**
+	 * Update the counts of the choice filters (fuel, body type, …): each
+	 * option shows how many vehicles it would give with the other filters.
+	 * Options without vehicles are disabled (or hidden), except the chosen one.
+	 */
+	Inventory.prototype.updateChoices = function ( choices ) {
+		var selects = this.root.querySelectorAll( 'select[data-dinv-choice]' );
+		Array.prototype.forEach.call( selects, function ( select ) {
+			var counts = choices[ select.dataset.dinvChoice ];
+			if ( ! counts ) {
+				return;
+			}
+			var showCounts = select.dataset.counts === '1';
+			var hideEmpty = select.dataset.hideEmpty === '1';
+			Array.prototype.forEach.call( select.options, function ( option ) {
+				if ( ! option.value ) {
+					return;
+				}
+				var count = Number( counts[ option.value ] || 0 );
+				var empty = count === 0 && ! option.selected;
+				var label = option.dataset.label || option.textContent;
+				option.textContent = showCounts ? label + ' (' + fmt( count ) + ')' : label;
+				option.disabled = empty;
+				option.hidden = empty && hideEmpty;
+			} );
+		} );
+	};
+
 	Inventory.prototype.render = function ( data, page, options ) {
 		var items = this.results ? this.results.querySelector( '[data-dinv-items]' ) : null;
 		var firstNew = null;
@@ -814,6 +842,9 @@
 		}
 		if ( this.makeModel && data.facets ) {
 			this.makeModel.update( data.facets );
+		}
+		if ( data.choices ) {
+			this.updateChoices( data.choices );
 		}
 
 		this.page = page;

@@ -95,6 +95,7 @@ final class Shortcode {
 			'options'        => $config['show_filters'] ? Repository::filter_options() : array(),
 			'tree'           => $show_make ? Repository::make_tree() : array(),
 			'facets'         => $show_make ? $inventory->facets() : array(),
+			'choice_counts'  => $config['show_filters'] ? $inventory->choice_counts() : array(),
 			'labels'         => Labels::ui(),
 			'renderer'       => $inventory->renderer,
 			'preset_params'  => self::request_params( $inventory->preset_filters ),

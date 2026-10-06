@@ -84,6 +84,13 @@ final class Inventory {
 	private ?array $facets = null;
 
 	/**
+	 * Choice filter counts (computed once).
+	 *
+	 * @var array|null
+	 */
+	private ?array $choice_counts = null;
+
+	/**
 	 * Result renderer.
 	 *
 	 * @var Renderer
@@ -252,6 +259,35 @@ final class Inventory {
 		return $this->config['show_filters']
 			&& 'hidden' !== $this->config['make_model_mode']
 			&& in_array( 'make', (array) $this->config['filters'], true );
+	}
+
+	/**
+	 * Vehicle counts per value of the shown choice filters (fuel, body type, …)
+	 * for the current filters.
+	 *
+	 * @return array<string, array<string, int>>
+	 */
+	public function choice_counts(): array {
+		if ( null === $this->choice_counts ) {
+			$map     = array(
+				'category'     => 'vehicle_category',
+				'fuel'         => 'fuel',
+				'transmission' => 'transmission',
+				'body'         => 'body_type',
+				'drive'        => 'drive_type',
+				'condition'    => 'condition',
+			);
+			$targets = array();
+			if ( $this->config['show_filters'] ) {
+				foreach ( (array) $this->config['filters'] as $key ) {
+					if ( isset( $map[ $key ] ) && ! isset( $this->preset_filters[ $map[ $key ] ] ) ) {
+						$targets[] = $map[ $key ];
+					}
+				}
+			}
+			$this->choice_counts = $targets ? Repository::choice_counts( $this->filters, $targets ) : array();
+		}
+		return $this->choice_counts;
 	}
 
 	/**

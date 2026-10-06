@@ -6,6 +6,7 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ### Added
 - Layouts: cards, compact grid, list and table, with columns set separately for desktop, tablet and phone. Visitors can switch between grid and list, and the browser remembers their choice.
+- Choice filters (fuel, body type, transmission, drive, condition, category) show counts for the other active filters. Choices without vehicles are disabled, or hidden when "Hide empty" is on.
 - Make and model filter modes: two dropdowns, one combined picker, a searchable field (ARIA combobox), or hidden. Counts can be shown and empty entries hidden.
 - Filter selection and order (drag and drop), sidebar or top position, collapsed start, mobile off-canvas panel, and sliders for ranges.
 - Visitor page-size selector, "Load more" and infinite scrolling (with crawlable links), and a choice of which sort options are offered.
@@ -33,6 +34,7 @@ All notable changes to this project are documented here. The format follows [Kee
 - Vehicle detail URLs on other pages redirect to the configured detail page.
 
 ### Fixed
+- After the settings were changed, clearing a filter could show results rendered with the old settings, because the browser or CDN still had a cached response.
 - The currency and date format options CHF, EUR, m/Y, m.Y and Y could not be saved.
 - A filter with fewer than two choices could leave an output buffer open.
 - Template rendering now closes its output buffer when a template throws an error.

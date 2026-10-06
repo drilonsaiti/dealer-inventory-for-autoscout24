@@ -16,6 +16,7 @@
  * @var array  $options       Filter options.
  * @var array  $tree          Makes with models.
  * @var array  $facets        Counts for the active filters.
+ * @var array  $choice_counts Counts per choice (fuel, body type, …) for the active filters.
  * @var array  $labels        Interface labels.
  * @var array  $preset_params Preset filters as request parameters.
  * @var string $uid           Unique element id.
@@ -87,7 +88,9 @@ $dinv_choice_groups = array(
  *
  * @param string $key Filter key.
  */
-$dinv_field = static function ( string $key ) use ( $config, $instance, $filters, $preset_filters, $options, $labels, $uid, $dinv_names, $dinv_choice_groups, $dinv_parts ): string {
+$dinv_choice_counts = isset( $choice_counts ) ? (array) $choice_counts : array();
+
+$dinv_field = static function ( string $key ) use ( $config, $instance, $filters, $preset_filters, $options, $labels, $uid, $dinv_names, $dinv_choice_groups, $dinv_parts, $dinv_choice_counts ): string {
 	$name  = static fn( string $param ): string => Shortcode::request_key( $param, $instance );
 	$id    = $uid . '-f-' . $key;
 	$label = $dinv_names[ $key ] ?? $key;
@@ -115,14 +118,18 @@ $dinv_field = static function ( string $key ) use ( $config, $instance, $filters
 		<div class="dinv-field dinv-field--<?php echo esc_attr( $key ); ?>" data-dinv-filter="<?php echo esc_attr( $key ); ?>">
 			<label class="dinv-field__label" for="<?php echo esc_attr( $id ); ?>"><?php echo esc_html( $label ); ?></label>
 			<span class="dinv-select">
-				<select id="<?php echo esc_attr( $id ); ?>" name="<?php echo esc_attr( $name( $key ) ); ?>">
+				<select id="<?php echo esc_attr( $id ); ?>" name="<?php echo esc_attr( $name( $key ) ); ?>" data-dinv-choice="<?php echo esc_attr( $target ); ?>" data-counts="<?php echo $config['filter_counts'] ? '1' : '0'; ?>" data-hide-empty="<?php echo $config['hide_empty'] ? '1' : '0'; ?>">
 					<option value=""><?php echo esc_html( $labels['all'] ); ?></option>
-					<?php foreach ( $rows as $row ) : ?>
-						<option value="<?php echo esc_attr( (string) $row['value'] ); ?>" <?php selected( $current, (string) $row['value'] ); ?>>
-							<?php
-							$text = Labels::enum( $enum, (string) $row['value'] );
-							echo esc_html( $config['filter_counts'] ? sprintf( '%s (%s)', $text, number_format_i18n( (int) $row['count'] ) ) : $text );
-							?>
+					<?php
+					foreach ( $rows as $row ) :
+						$value    = (string) $row['value'];
+						$text     = Labels::enum( $enum, $value );
+						$count    = isset( $dinv_choice_counts[ $target ] ) ? (int) ( $dinv_choice_counts[ $target ][ $value ] ?? 0 ) : (int) $row['count'];
+						$selected = $current === $value;
+						$empty    = 0 === $count && ! $selected;
+						?>
+						<option value="<?php echo esc_attr( $value ); ?>" data-label="<?php echo esc_attr( $text ); ?>" <?php selected( $selected ); ?> <?php disabled( $empty ); ?> <?php echo $empty && $config['hide_empty'] ? 'hidden' : ''; ?>>
+							<?php echo esc_html( $config['filter_counts'] ? sprintf( '%s (%s)', $text, number_format_i18n( $count ) ) : $text ); ?>
 						</option>
 					<?php endforeach; ?>
 				</select>
