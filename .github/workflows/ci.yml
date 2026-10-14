@@ -24,6 +24,7 @@ jobs:
           tools: composer:v2
           coverage: none
       - run: composer update --no-interaction --no-progress --prefer-dist
+      - run: composer audit --no-interaction
       - run: vendor/bin/phpcs
 
   phpunit:

@@ -279,7 +279,20 @@ composer test          # PHPUnit (needs a test database, see below)
 npm run test:js        # filter UI smoke test (node:test + jsdom)
 ```
 
-PHPUnit needs a WordPress test database. Point `WP_PHPUNIT__TESTS_CONFIG` to a `wp-tests-config.php`. `.github/workflows/ci.yml` has an example. The test suites cover:
+PHPUnit needs a WordPress core directory and a **disposable MySQL test database**; the test library resets its tables. Copy `wp-tests-config.php.dist` to `wp-tests-config.php`, set the four required environment variables named in that file, and set `WP_PHPUNIT__TESTS_CONFIG` to the copied file. `DINV_TEST_DB_PASSWORD` is optional and defaults to an empty password for local XAMPP setups. The local config is ignored by Git so database credentials stay out of the repository. `.github/workflows/ci.yml` has a complete CI example. The test suites cover:
+
+PowerShell setup example (replace the paths and database values with your local test-only setup):
+
+```powershell
+Copy-Item .\wp-tests-config.php.dist .\wp-tests-config.php
+$env:WP_TESTS_WORDPRESS_PATH = 'C:\path\to\wordpress'
+$env:DINV_TEST_DB_NAME = 'wordpress_tests'
+$env:DINV_TEST_DB_USER = 'test_user'
+$env:DINV_TEST_DB_PASSWORD = 'test_password'
+$env:DINV_TEST_DB_HOST = '127.0.0.1:3306'
+$env:WP_PHPUNIT__TESTS_CONFIG = (Resolve-Path .\wp-tests-config.php).Path
+composer test
+```
 
 - the repository (search, filters, sorting, facets, sync bookkeeping);
 - settings sanitizing and precedence;

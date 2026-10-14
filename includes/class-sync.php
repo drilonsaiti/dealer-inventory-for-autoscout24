@@ -276,9 +276,25 @@ final class Sync {
 		if ( ! is_array( $existing ) || ! is_string( $existing['token'] ?? null ) || ! hash_equals( $existing['token'], $token ) ) {
 			return false;
 		}
-		$existing['expires_at'] = time() + self::LOCK_TTL;
-		update_option( self::LOCK_OPTION, $existing, false );
-		return true;
+
+		$updated_lock               = $existing;
+		$updated_lock['expires_at'] = time() + self::LOCK_TTL;
+
+		// Extend the lock only if the stored value is still the one we read.
+		// Another request may have taken over after the read above.
+		global $wpdb;
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Atomic compare-and-swap prevents overwriting a concurrent lock takeover.
+		$updated = $wpdb->query(
+			$wpdb->prepare(
+				"UPDATE {$wpdb->options} SET option_value=%s WHERE option_name=%s AND option_value=%s",
+				maybe_serialize( $updated_lock ),
+				self::LOCK_OPTION,
+				maybe_serialize( $existing )
+			)
+		);
+
+		wp_cache_delete( self::LOCK_OPTION, 'options' );
+		return 1 === $updated;
 	}
 
 	/**

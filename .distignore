@@ -8,6 +8,7 @@
 /tests
 /vendor
 /build
+/wp-tests-config.php.dist
 .distignore
 .gitignore
 .phpunit.result.cache
