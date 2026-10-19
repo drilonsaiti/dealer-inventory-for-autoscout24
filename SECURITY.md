@@ -6,7 +6,7 @@ Security fixes are released for the latest version of the plugin.
 
 ## Reporting a vulnerability
 
-Please do **not** open a public issue. Report the problem privately through GitHub instead: open the [Security tab](https://github.com/drilonsaiti/autoscout24-inventory-plugin/security) of this repository and choose **Report a vulnerability**.
+Please do **not** open a public issue. Report the problem privately through GitHub instead: open the [Security tab](https://github.com/drilonsaiti/dealer-inventory-for-autoscout24/security) of this repository and choose **Report a vulnerability**.
 
 Please include:
 

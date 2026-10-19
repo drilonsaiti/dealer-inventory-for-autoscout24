@@ -6,7 +6,7 @@
 
 Show your AutoScout24 vehicle stock on your own WordPress site. The listings are synced into your WordPress database on a schedule. Visitors browse a fast, server-rendered list that search engines can crawl, and their page views never call the AutoScout24 API.
 
-[![CI](https://github.com/drilonsaiti/autoscout24-inventory-plugin/actions/workflows/ci.yml/badge.svg)](https://github.com/drilonsaiti/autoscout24-inventory-plugin/actions/workflows/ci.yml)
+[![CI](https://github.com/drilonsaiti/dealer-inventory-for-autoscout24/actions/workflows/ci.yml/badge.svg)](https://github.com/drilonsaiti/dealer-inventory-for-autoscout24/actions/workflows/ci.yml)
 ![WordPress 6.5+](https://img.shields.io/badge/WordPress-6.5%2B-21759b)
 ![PHP 8.1+](https://img.shields.io/badge/PHP-8.1%2B-777bb4)
 ![License GPL-2.0-or-later](https://img.shields.io/badge/license-GPL--2.0--or--later-green)
@@ -72,7 +72,7 @@ Show your AutoScout24 vehicle stock on your own WordPress site. The listings are
 
 ## Installation
 
-**From a zip.** Download `dealer-inventory-for-autoscout24.zip` from [Releases](https://github.com/drilonsaiti/autoscout24-inventory-plugin/releases), or build it yourself (see [Development](#development)). In WordPress, go to **Plugins → Add New → Upload Plugin**, upload the zip and activate the plugin.
+**From a zip.** Download `dealer-inventory-for-autoscout24.zip` from [Releases](https://github.com/drilonsaiti/dealer-inventory-for-autoscout24/releases), or build it yourself (see [Development](#development)). In WordPress, go to **Plugins → Add New → Upload Plugin**, upload the zip and activate the plugin.
 
 **From source.** Clone the repository into `wp-content/plugins/dealer-inventory-for-autoscout24`. The plugin itself needs no build step and no Composer packages. Composer and npm are only used for the development tools.
 

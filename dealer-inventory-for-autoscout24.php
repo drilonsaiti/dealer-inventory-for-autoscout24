@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name:       Dealer Inventory for AutoScout24
- * Plugin URI:        https://github.com/drilonsaiti/autoscout24-inventory-plugin
+ * Plugin URI:        https://github.com/drilonsaiti/dealer-inventory-for-autoscout24
  * Description:       Show a car dealer's AutoScout24 stock on their own WordPress site: synced locally, fast, crawlable and fully styleable.
  * Version:           1.1.0
  * Requires at least: 6.5
